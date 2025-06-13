@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  llm-tester-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./pdfs:/data
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://0.0.0.0:8080"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
