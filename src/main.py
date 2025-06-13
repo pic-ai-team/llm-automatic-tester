@@ -1,7 +1,9 @@
+import uvicorn
 import os
 import requests
 from dotenv import load_dotenv
 from datetime import datetime
+from fastapi import FastAPI, HTTPException
 
 load_dotenv()
 AI_COMMANDER_ENDPOINT = os.getenv("AI_COMMANDER_ENDPOINT")
@@ -92,7 +94,41 @@ def disconnect_km_from_bot(km_collection_ids):
 # start_id = 231294500  # 69
 start_id = 120625999  # 1
 
-document_ids = [start_id + i for i in range(1)]
-connect_km_to_bot(document_ids)  # 2. connect the bot to the KM
-# send_question_answer()
-# disconnect_km_from_bot(document_ids)  # 4. disconnect the bot with the KM
+# document_ids = [start_id + i for i in range(1)]
+# connect_km_to_bot(document_ids)  # 2. connect the bot to the KM
+# # send_question_answer()
+# # disconnect_km_from_bot(document_ids)  # 4. disconnect the bot with the KM
+
+
+app = FastAPI()
+
+
+@app.post("/connect_km_to_bot/")
+async def api_connect_km_to_bot(km_collection_ids: list[int]):
+    try:
+        connect_km_to_bot(km_collection_ids)
+        return {"message": "Bot connected to KM successfully."}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/disconnect_km_from_bot/")
+async def api_disconnect_km_from_bot(km_collection_ids: list[int]):
+    try:
+        disconnect_km_from_bot(km_collection_ids)
+        return {"message": "Bot disconnected from KM successfully."}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/send_question_answer/")
+async def api_send_question_answer():
+    try:
+        send_question_answer()
+        return {"message": "Question sent and answer received successfully."}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=2020)
