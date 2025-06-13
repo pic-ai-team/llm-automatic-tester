@@ -9,3 +9,4 @@ asyncpg==0.30.0
 fastapi[standard]==0.115.12
 uvicorn==0.34.3
 pydantic==2.11.5
+dvc==3.60.1

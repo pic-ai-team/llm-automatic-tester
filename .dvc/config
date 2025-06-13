@@ -1,0 +1,4 @@
+[core]
+    remote = myremote
+['remote "myremote"']
+    url = gs://ai-portal-public-data-dev/llm-automatic-tester

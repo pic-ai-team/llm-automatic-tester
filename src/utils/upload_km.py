@@ -1,4 +1,12 @@
+import os
+from dotenv import load_dotenv
 from google.cloud import storage
+from typing import BinaryIO
+
+load_dotenv(override=True)
+
+GCS_PUBLIC_BUCKET = os.getenv("GCS_PUBLIC_BUCKET")
+GCS_TMP_DIR = os.getenv("GCS_TMP_DIR")
 
 
 def check_file_exists(bucket_name, file_name):
@@ -45,14 +53,44 @@ def get_file_url(bucket_name, file_name):
         # Generate the public URL
         if blob.exists():
             return f"https://storage.googleapis.com/{bucket_name}/{file_name}"
-        else:
-            print(
-                f"The file '{file_name}' does not exist in the bucket '{bucket_name}'."
-            )
-            return None
+        print(f"The file '{file_name}' does not exist in the bucket '{bucket_name}'.")
+        return None
     except Exception as e:
         print(f"An error occurred: {e}")
         return None
+
+
+def upload_to_gcs_dir(
+    local_file_path: str | BinaryIO,
+    file_name: str,
+    bucket_name: str = GCS_PUBLIC_BUCKET,
+    dir_name: str = GCS_TMP_DIR,
+) -> str:
+    # Set up GCS client
+    client = storage.Client()
+
+    # Upload file
+    gcs_file_path = os.path.join(dir_name, file_name)
+    blob = client.bucket(bucket_name).blob(gcs_file_path)
+
+    file_type = file_name.split(".")[-1].lower()
+    content_type = (
+        f"image/{file_type}"
+        if file_type in ["jpg", "jpeg", "png"]
+        else "application/octet-stream"
+    )
+
+    if isinstance(local_file_path, str):
+        blob.upload_from_filename(local_file_path, content_type=content_type)
+    # elif isinstance(local_file_path, BinaryIO):
+    #     blob.upload_from_file(local_file_path)
+    else:  # BinaryIO is not catched. File type was tempfile.SpooledTemporaryFile ¯\_(ツ)_/¯
+        blob.upload_from_file(local_file_path, content_type=content_type)
+
+    # Generate public link
+    url = blob.public_url
+    url = requests.utils.unquote(url)
+    return url
 
 
 # Example usage
