@@ -1,4 +1,5 @@
 # Getting Started
+This repository contains implementation to test UNI-PIC AI. The testing dataset could be found in the `AIPortal` database, `qa_data` table.
 1. upload km data to the gcs and milvus
 ```
 python upload_km_data.py
