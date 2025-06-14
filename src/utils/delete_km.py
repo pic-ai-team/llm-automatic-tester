@@ -4,11 +4,28 @@ from typing import List
 from dotenv import load_dotenv
 from google.cloud import storage
 
-load_dotenv(override=True)
+load_dotenv()
 
 AI_COMMANDER_ENDPOINT = os.getenv("AI_COMMANDER_ENDPOINT")
 GCS_PUBLIC_BUCKET = os.getenv("GCS_PUBLIC_BUCKET")
 GCS_DOCS_DIR = os.getenv("GCS_DOCS_DIR")
+
+
+def delete_km_from_bot(bot_id: str, km_collection_ids: List[int]):
+    url = f"{AI_COMMANDER_ENDPOINT}/bot_km"
+    headers = {"accept": "application/json", "Content-Type": "application/json"}
+    for km_collection_id in km_collection_ids:
+        payload = {"bot_id": bot_id, "km_collection_id": km_collection_id}
+        response = requests.delete(url, json=payload, headers=headers)
+        if response.status_code == 200:
+            print("Bot disconnected from KM successfully.")
+        else:
+            print(
+                "Failed to disconnect bot from KM with status code:",
+                response.status_code,
+                "and message:",
+                response.text,
+            )
 
 
 def delete_km_document_id(document_ids: List[int]):

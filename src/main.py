@@ -67,23 +67,6 @@ def connect_km_to_bot(km_collection_ids):
         )
 
 
-def disconnect_km_from_bot(km_collection_ids):
-    url = f"{AI_COMMANDER_ENDPOINT}/bot_km"
-    headers = {"accept": "application/json", "Content-Type": "application/json"}
-    for km_collection_id in km_collection_ids:
-        payload = {"bot_id": "bot-23", "km_collection_id": km_collection_id}
-        response = requests.delete(url, json=payload, headers=headers)
-        if response.status_code == 200:
-            print("Bot disconnected from KM successfully.")
-        else:
-            print(
-                "Failed to disconnect bot from KM with status code:",
-                response.status_code,
-                "and message:",
-                response.text,
-            )
-
-
 if __name__ == "__main__":
     # testing script algorithm:
     # 1. set the bot config, ex

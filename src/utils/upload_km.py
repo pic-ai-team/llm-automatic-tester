@@ -1,15 +1,17 @@
 import os
+import requests
 from dotenv import load_dotenv
 from google.cloud import storage
-from typing import BinaryIO
+from typing import BinaryIO, List
 
-load_dotenv(override=True)
+load_dotenv()
 
+AI_COMMANDER_ENDPOINT = os.getenv("AI_COMMANDER_ENDPOINT")
 GCS_PUBLIC_BUCKET = os.getenv("GCS_PUBLIC_BUCKET")
 GCS_DOCS_DIR = os.getenv("GCS_DOCS_DIR")
 
 
-def check_file_exists(bucket_name, file_name):
+def check_file_exists(bucket_name: str, file_name: str):
     """
     Check if a file exists in a Google Cloud Storage bucket.
 
@@ -32,7 +34,7 @@ def check_file_exists(bucket_name, file_name):
         return False
 
 
-def get_file_url(bucket_name, file_name):
+def get_file_url(bucket_name: str, file_name: str):
     """
     Get the public URL of a file in a Google Cloud Storage bucket.
 
@@ -93,21 +95,16 @@ def upload_to_gcs_dir(
     return url
 
 
-# Example usage
-if __name__ == "__main__":
-    import os
-    import requests
+def analyze_the_files(folder_path):
+    # this function below is used to analyze the files as KM into universal knowledge base
 
-    # start_id = 220509500  # Starting ID for km_collection_id and item_id
-    # start_id = 231294800  # Starting ID for km_collection_id and item_id
     start_id = 120625999  # Starting ID for km_collection_id and item_id
 
-    local_datasheet_folder = "pdfs/private"
-    files_list = os.listdir(local_datasheet_folder)
+    files_list = os.listdir(folder_path)
     for i, file_name in enumerate(files_list):
         file_id = start_id + i
         print(file_id, file_name)
-        file_url = get_file_url(GCS_PUBLIC_BUCKET, f"{GCS_TMP_DIR}/{file_name}")
+        file_url = get_file_url(GCS_PUBLIC_BUCKET, f"{GCS_DOCS_DIR}/{file_name}")
         data = {
             "km_collection_id": file_id,
             "item_id": file_id,
@@ -129,3 +126,30 @@ if __name__ == "__main__":
                 f"{file_id}: An error occurred while sending data for file: {file_name}, Error: {e}"
             )
         # Check if the file exists in the GCS bucket
+
+
+def connect_km_to_bot(bot_id: str, km_collection_ids: List[int]):
+    url = f"{AI_COMMANDER_ENDPOINT}/bot_km"
+    headers = {"accept": "application/json", "Content-Type": "application/json"}
+    payload = {"bot_id": bot_id, "km_collection_id": km_collection_ids}
+
+    response = requests.post(url, json=payload, headers=headers)
+    if response.status_code == 200:
+        print("Bot connected to KM successfully.")
+        return
+    print(
+        "Failed to connect bot to KM with status code:",
+        response.status_code,
+        "and message:",
+        response.text,
+    )
+
+
+# Example usage
+if __name__ == "__main__":
+    # start_id = 220509500  # Starting ID for km_collection_id and item_id
+    # start_id = 231294800  # Starting ID for km_collection_id and item_id
+    start_id = 120625999  # Starting ID for km_collection_id and item_id
+
+    local_datasheet_folder = "pdfs/private"
+    analyze_the_files(local_datasheet_folder)
