@@ -107,9 +107,7 @@ if __name__ == "__main__":
     for i, file_name in enumerate(files_list):
         file_id = start_id + i
         print(file_id, file_name)
-        bucket_name = "ai-portal-public-data-dev"
-        file_path = f"data/docs/{file_name}"
-        file_url = get_file_url(bucket_name, file_path)
+        file_url = get_file_url(GCS_PUBLIC_BUCKET, f"{GCS_TMP_DIR}/{file_name}")
         data = {
             "km_collection_id": file_id,
             "item_id": file_id,
