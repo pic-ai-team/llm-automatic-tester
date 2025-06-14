@@ -6,7 +6,7 @@ from typing import BinaryIO
 load_dotenv(override=True)
 
 GCS_PUBLIC_BUCKET = os.getenv("GCS_PUBLIC_BUCKET")
-GCS_TMP_DIR = os.getenv("GCS_TMP_DIR")
+GCS_DOCS_DIR = os.getenv("GCS_DOCS_DIR")
 
 
 def check_file_exists(bucket_name, file_name):
@@ -64,7 +64,7 @@ def upload_to_gcs_dir(
     local_file_path: str | BinaryIO,
     file_name: str,
     bucket_name: str = GCS_PUBLIC_BUCKET,
-    dir_name: str = GCS_TMP_DIR,
+    dir_name: str = GCS_DOCS_DIR,
 ) -> str:
     # Set up GCS client
     client = storage.Client()
